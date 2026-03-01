@@ -1,2 +1,2 @@
 compile:
-	gcc main.c dispaly.c
+	gcc main.c -lncurses -o veditor
