@@ -1,2 +1,2 @@
 compile:
-	gcc main.c -lncurses -o veditor
+	gcc main.c display.c -o veditor
