@@ -1,3 +1,5 @@
-compile:
+all:
+	gcc main.c -lncursesw -o veditor
 
-	gcc main.c display.c -o veditor
+debug:
+	gcc -g main.c -lncursesw -o veditor
