@@ -5,13 +5,16 @@
 #include <string.h>
 
 typedef struct {
+  // char *data;
+  // size_t size;
+  // size_t gap_start;
+  // size_t gap_end;
+  // size_t len;
+
   char *data;
+  int len;
+  int cap;
 
-  size_t size;
-  size_t gap_start;
-  size_t gap_end;
-
-  size_t len;
 } Buffer;
 
 typedef struct {
@@ -21,8 +24,9 @@ typedef struct {
 } Cursor;
 
 typedef struct {
-  Buffer *buffer;
+  // Buffer *buffer;
   Cursor cursor;
+  Buffer *rows;
 
   int numrows;
 
@@ -36,12 +40,6 @@ typedef struct {
   int insert_mode;
 
   char filename[256];
-
-  struct Row {
-    char *data;
-    int len;
-    int cap;
-  } *rows;
 
 } Editor;
 
