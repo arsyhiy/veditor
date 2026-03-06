@@ -1,20 +1,11 @@
-
+#include <limits.h>
 #include <locale.h>
 #include <ncurses.h>
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct {
-  // size_t size;
-  // size_t gap_start;
-  // size_t gap_end;
-  // size_t len;
-
-  char *data;
-  size_t len;
-  size_t cap;
-
-} Buffer;
+#include "buffer.h"
 
 typedef struct {
   size_t row;
@@ -26,18 +17,17 @@ typedef struct {
   Cursor cursor;
   Buffer *rows;
 
-  // int cx, cy;
   int rowoff;
   int coloff;
 
-  int numrows;
+  size_t numrows;
 
-  int screenrows;
-  int screencols;
+  size_t screenrows;
+  size_t screencols;
 
   int insert_mode;
 
-  char filename[256];
+  char filename[PATH_MAX];
 
 } Editor;
 
