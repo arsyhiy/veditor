@@ -5,15 +5,14 @@
 #include <string.h>
 
 typedef struct {
-  // char *data;
   // size_t size;
   // size_t gap_start;
   // size_t gap_end;
   // size_t len;
 
   char *data;
-  int len;
-  int cap;
+  size_t len;
+  size_t cap;
 
 } Buffer;
 
@@ -24,15 +23,14 @@ typedef struct {
 } Cursor;
 
 typedef struct {
-  // Buffer *buffer;
   Cursor cursor;
   Buffer *rows;
 
-  int numrows;
-
-  int cx, cy;
+  // int cx, cy;
   int rowoff;
   int coloff;
+
+  int numrows;
 
   int screenrows;
   int screencols;
