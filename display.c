@@ -1,7 +1,7 @@
 #include"editor.h"
 
 
-static void clamp_cursor(Editor *E) {
+void clamp_cursor(Editor *E) {
   if (E->cursor.row < 0)
     E->cursor.row = 0;
 

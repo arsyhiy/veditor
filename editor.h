@@ -9,6 +9,8 @@
 
 #include "buffer.h"
 
+#include "undo.h"
+
 typedef struct {
   size_t row;
   size_t col;
@@ -34,6 +36,11 @@ typedef struct {
   size_t screencols;
 
   EditorState editor_state;
+
+  /* undo system */
+  UndoOp *undo_stack;
+  size_t undo_len;
+  size_t undo_cap;
 
   char filename[PATH_MAX];
 
