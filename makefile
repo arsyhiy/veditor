@@ -1,5 +1,5 @@
 all:
-	gcc main.c editor.c -lncursesw -o veditor
+	gcc main.c editor.c buffer.c -lncursesw -o veditor
 
 debug:
-	gcc -g main.c editor.c -lncursesw -o veditor
+	gcc -g main.c editor.c buffer.c -lncursesw -o veditor

@@ -4,6 +4,9 @@ static void clamp_cursor(Editor *E) {
   if (E->cursor.row < 0)
     E->cursor.row = 0;
 
+  if (E->numrows == 0)
+    return;
+
   if (E->cursor.row >= E->numrows)
     E->cursor.row = E->numrows - 1;
 
@@ -49,16 +52,25 @@ static void editor_scroll(Editor *E) {
 static void editor_insert_char(Editor *E, int c) {
   Buffer *row = &E->rows[E->cursor.row];
 
-  if (row->len + 2 > row->cap) {
-    int newcap = row->cap * 2 + 16;
-    row->data = realloc(row->data, newcap);
-    row->cap = newcap;
+  if (E->cursor.col > row->len)
+    E->cursor.col = row->len;
+
+  if (row->len + 2 > row->size) {
+
+    int newcap = row->size * 2 + 16;
+
+    char *newdata = realloc(row->data, newcap);
+    if (!newdata)
+      abort();
+
+    row->data = newdata;
+    row->size = newcap;
   }
 
   memmove(row->data + E->cursor.col + 1, row->data + E->cursor.col,
           row->len - E->cursor.col + 1);
 
-  row->data[E->cursor.col] = c;
+  row->data[E->cursor.col] = (char)c;
   row->len++;
 
   E->cursor.col++;
@@ -75,9 +87,9 @@ static void editor_insert_newline(Editor *E) {
   int right_len = cur->len - E->cursor.col;
 
   Buffer newrow;
-  newrow.cap = right_len + 32;
+  newrow.size = right_len + 32;
   newrow.len = right_len;
-  newrow.data = calloc(1, newrow.cap);
+  newrow.data = calloc(1, newrow.size);
 
   if (right_len > 0)
     memcpy(newrow.data, cur->data + E->cursor.col, right_len);
@@ -87,9 +99,9 @@ static void editor_insert_newline(Editor *E) {
 
   // этот хак в полне рабочий но по какой то причине конец файла имеет несколько
   // невидимых символов которых если удалять удаляет видимые символы
-  if (cur->cap <= E->cursor.col) {
-    cur->cap = E->cursor.col + 1;
-    cur->data = realloc(cur->data, cur->cap);
+  if (cur->size <= E->cursor.col) {
+    cur->size = E->cursor.col + 1;
+    cur->data = realloc(cur->data, cur->size);
   }
 
   cur->data[E->cursor.col] = '\0';
@@ -104,7 +116,7 @@ static void editor_insert_newline(Editor *E) {
 }
 
 static void editor_backspace(Editor *E) {
-  if (E->cursor.col >= E->numrows)
+  if (E->cursor.row >= E->numrows)
     return;
 
   Buffer *row = &E->rows[E->cursor.row];
@@ -141,61 +153,78 @@ static void editor_backspace(Editor *E) {
   E->cursor.col = prev->len;
 }
 
-// Buffer *init_buffer(size_t initial_size) {
-//   Buffer *buf = malloc(sizeof(Buffer));
-//   if (!buf)
-//     return NULL;
-//
-//   buf->data = malloc(initial_size);
-//   buf->size = initial_size;
-//   buf->len = 0;
-//
-//   buf->gap_start = 0;
-//   buf->gap_end = initial_size;
-//
-//   return buf;
-// }
+void editor_process_key(Editor *E)
+{
+    int c = getch();
 
-void editor_process_key(Editor *E) {
-  int c = getch();
+    if (!E->insert_mode) {
 
-  if (!E->insert_mode) {
-    if (c == 'i')
-      E->insert_mode = 1;
+        if (c == 'i')
+            E->insert_mode = 1;
 
-    else if (c == 17) {
-      endwin();
-      exit(0);
+        else if (c == 17) {
+            endwin();
+            exit(0);
+        }
+
+        else if (c == 19)
+            editor_save(E);
+
+        else if (c == KEY_UP) {
+            if (E->cursor.row > 0)
+                E->cursor.row--;
+        }
+
+        else if (c == KEY_DOWN) {
+            if (E->cursor.row + 1 < E->numrows)
+                E->cursor.row++;
+        }
+
+        else if (c == KEY_LEFT) {
+
+            if (E->cursor.col > 0) {
+                E->cursor.col--;
+            }
+            else if (E->cursor.row > 0) {
+                /* переход на предыдущую строку */
+                E->cursor.row--;
+                E->cursor.col = E->rows[E->cursor.row].len;
+            }
+        }
+
+        else if (c == KEY_RIGHT) {
+
+            if (E->cursor.row < E->numrows) {
+
+                int len = E->rows[E->cursor.row].len;
+
+                if (E->cursor.col < len) {
+                    E->cursor.col++;
+                }
+                else if (E->cursor.row + 1 < E->numrows) {
+                    /* переход на следующую строку */
+                    E->cursor.row++;
+                    E->cursor.col = 0;
+                }
+            }
+        }
+
+    } else {
+
+        if (c == 27)
+            E->insert_mode = 0;
+
+        else if (c == KEY_BACKSPACE || c == 127)
+            editor_backspace(E);
+
+        else if (c == '\n' || c == 10)
+            editor_insert_newline(E);
+
+        else if (c >= 32 && c <= 126)
+            editor_insert_char(E, c);
     }
-
-    else if (c == 19)
-      editor_save(E);
-
-    else if (c == KEY_UP)
-      E->cursor.row--;
-
-    else if (c == KEY_DOWN)
-      E->cursor.row++;
-
-    else if (c == KEY_LEFT)
-      E->cursor.col--;
-
-    else if (c == KEY_RIGHT)
-      E->cursor.col++;
-  } else {
-    if (c == 27)
-      E->insert_mode = 0;
-
-    else if (c == KEY_BACKSPACE || c == 127)
-      editor_backspace(E);
-
-    else if (c == '\n' || c == 10)
-      editor_insert_newline(E);
-
-    else if (c >= 32 && c <= 126)
-      editor_insert_char(E, c);
-  }
 }
+
 void editor_open(Editor *E, const char *filename) {
   strncpy(E->filename, filename, 255);
 
@@ -216,9 +245,12 @@ void editor_open(Editor *E, const char *filename) {
 
     Buffer *row = &E->rows[E->numrows];
 
-    row->cap = l + 32;
+    row->size = l + 32;
     row->len = l;
-    row->data = malloc(row->cap);
+    row->data = malloc(row->size);
+
+    if (!row->data)
+      abort();
 
     memcpy(row->data, line, l + 1);
 
@@ -246,7 +278,6 @@ void editor_open(Editor *E, const char *filename) {
 // }
 
 void init(Editor *E) {
-
   setlocale(LC_ALL, "");
 
   initscr();
@@ -258,42 +289,53 @@ void init(Editor *E) {
   getmaxyx(stdscr, E->screenrows, E->screencols);
   E->screenrows--;
 
-  E->cursor.col = E->cursor.row = 0;
-  E->rowoff = E->coloff = 0;
+  /* cursor */
+  E->cursor.col = 0;
+  E->cursor.row = 0;
+  E->cursor.offset = 0;
+
+  E->rowoff = 0;
+  E->coloff = 0;
 
   E->insert_mode = 0;
 
-  /* allocate one empty row */
+  E->rows = malloc(sizeof(Buffer));
+  if (!E->rows)
+    abort();
 
-  E->rows = malloc(sizeof(*E->rows));
   E->numrows = 1;
 
-  E->rows[0].cap = 32;
-  E->rows[0].len = 0;
-  E->rows[0].data = calloc(1, 32);
+  buffer_init(&E->rows[0], 32);
 
   E->filename[0] = 0;
-
-  // init_editor();
 }
 
-static void draw_row(Editor *E, int filerow) {
-  int y = filerow - E->rowoff;
+static void draw_row(Editor *E, int filerow)
+{
+    int y = filerow - E->rowoff;
 
-  if (y < 0 || y >= E->screenrows)
-    return;
+    if (y < 0 || y >= E->screenrows)
+        return;
 
-  move(y, 0);
-  clrtoeol();
+    move(y, 0);
+    clrtoeol();
 
-  if (filerow >= E->numrows) {
-    mvprintw(y, 0, "~");
-    return;
-  }
+    if (filerow >= E->numrows) {
+        mvprintw(y, 0, "~");
+        return;
+    }
 
-  Buffer *row = &E->rows[filerow];
+    Buffer *row = &E->rows[filerow];
 
-  mvprintw(y, 0, "%.*s", E->screencols, row->data + E->coloff);
+    if (E->coloff >= row->len)
+        return;
+
+    int len = row->len - E->coloff;
+
+    if (len > E->screencols)
+        len = E->screencols;
+
+    mvprintw(y, 0, "%.*s", len, row->data + E->coloff);
 }
 
 void editor_refresh_screen(Editor *E) {
