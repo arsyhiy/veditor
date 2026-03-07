@@ -123,10 +123,10 @@ void editor_process_key(Editor *E)
 {
     int c = getch();
 
-    if (!E->insert_mode) {
+    if (!E-> editor_state == STATE_INSERT) {
 
         if (c == 'i')
-            E->insert_mode = 1;
+            E->editor_state = STATE_INSERT;
 
         else if (c == 17) {
             endwin();
@@ -178,7 +178,7 @@ void editor_process_key(Editor *E)
     } else {
 
         if (c == 27)
-            E->insert_mode = 0;
+            E->editor_state = STATE_NORMAL;
 
         else if (c == KEY_BACKSPACE || c == 127)
             editor_backspace(E);

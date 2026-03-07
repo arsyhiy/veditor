@@ -79,7 +79,7 @@ void editor_refresh_screen(Editor *E) {
 
   char mode[32];
   snprintf(mode, sizeof(mode), "CTRL+S save | CTRL+Q quit | %s",
-           E->insert_mode ? "INSERT" : "NORMAL");
+           E->editor_state == STATE_INSERT ? "INSERT" : "NORMAL");
 
   printw("%-*s", E->screencols, mode);
 

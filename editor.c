@@ -40,7 +40,7 @@ void init(Editor *E) {
   E->rowoff = 0;
   E->coloff = 0;
 
-  E->insert_mode = 0;
+  E->editor_state = STATE_NORMAL;
 
   E->rows = malloc(sizeof(Buffer));
   if (!E->rows)

@@ -15,6 +15,12 @@ typedef struct {
   size_t offset;
 } Cursor;
 
+typedef enum {
+    STATE_NORMAL,
+    STATE_INSERT,
+    STATE_VISUAL
+} EditorState;
+
 typedef struct {
   Cursor cursor;
   Buffer *rows;
@@ -27,7 +33,7 @@ typedef struct {
   size_t screenrows;
   size_t screencols;
 
-  int insert_mode;
+  EditorState editor_state;
 
   char filename[PATH_MAX];
 
