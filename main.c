@@ -2,6 +2,7 @@
 #include "file.h"
 #include "display.h"
 #include "input.h"
+#include <ncurses.h>
 
 int main(int argc, char *argv[]) {
   Editor E = {0};
@@ -15,4 +16,6 @@ int main(int argc, char *argv[]) {
     editor_refresh_screen(&E);
     editor_process_key(&E);
   }
+  endwin();
+  return 0;
 }
