@@ -1,3 +1,5 @@
+#pragma once
+
 #include <limits.h>
 #include <locale.h>
 #include <ncurses.h>
@@ -31,7 +33,4 @@ typedef struct {
 
 } Editor;
 
-void editor_open(Editor *E, const char *filename);
-void editor_process_key(Editor *E);
-void editor_refresh_screen(Editor *E);
 void init(Editor *E);

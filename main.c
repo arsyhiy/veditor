@@ -1,4 +1,7 @@
 #include "editor.h"
+#include "file.h"
+#include "display.h"
+#include "input.h"
 
 int main(int argc, char *argv[]) {
   Editor E = {0};
