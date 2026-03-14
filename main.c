@@ -2,10 +2,9 @@
 #include "file.h"
 #include "display.h"
 #include "input.h"
-#include <ncurses.h>
 
-int main(int argc, char *argv[]) {
-  Editor E = {0};
+int main(int argc, char *argv[]) { 
+  Editor E = {0}; // NOTE: пересмотреть способ инитиализации E. 
 
   init(&E);
 
@@ -13,9 +12,11 @@ int main(int argc, char *argv[]) {
     editor_open(&E, argv[1]);
 
   while (1) {
+    // NOTE: можно перенести это в refresh_editor(&E);
     editor_refresh_screen(&E);
     editor_process_key(&E);
   }
-  endwin();
+
+  shutdown(&E);
   return 0;
 }

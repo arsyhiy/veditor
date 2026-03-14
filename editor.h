@@ -47,3 +47,4 @@ typedef struct {
 } Editor;
 
 void init(Editor *E);
+void shutdown(Editor *E);

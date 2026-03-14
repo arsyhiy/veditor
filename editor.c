@@ -1,35 +1,17 @@
 #include "editor.h"
 
-
-
-
-
-// Editor *init_editor(void) {
-//   Editor *ed = malloc(sizeof(Editor));
-//   if (!ed)
-//     return NULL;
-//
-//   /* Buffer */
-//   ed->buffer = init_buffer(1024);
-//
-//   /* Cursor */
-//   ed->cursor.row = 0;
-//   ed->cursor.col = 0;
-//   ed->cursor.offset = 0;
-//
-//   return ed;
-// }
-
 void init(Editor *E) {
   setlocale(LC_ALL, "");
 
-  initscr();
+  initscr(); // TODO: переделать инитиализацию интерфейса в отдельную функцию display.c
   raw();
   noecho();
   keypad(stdscr, TRUE);
   curs_set(1);
 
-  getmaxyx(stdscr, E->screenrows, E->screencols);
+  // проще говоря нижняя строка получате значения для размера экрана
+  getmaxyx(stdscr, E->screenrows, E->screencols); // TODO : вызывается он один раз надо будет сделать так чтобы был флаг если пользователь изменил размер экрана.
+  
   E->screenrows--;
 
   /* cursor */
@@ -53,3 +35,18 @@ void init(Editor *E) {
   E->filename[0] = 0;
 }
 
+
+void shutdown(Editor *E) {
+  // TODO: закрыть любые или убить процессы а также очистить занимаемо место в ram.
+
+  // destroy buffer
+  // destroy_buffer();
+
+  // destroy undo stack
+  // destroy_undo_stack();
+  
+  
+// закрытие интерфейса
+  endwin();
+  
+}

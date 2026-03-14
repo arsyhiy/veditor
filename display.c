@@ -63,7 +63,8 @@ static void draw_row(Editor *E, int filerow)
     if (len > E->screencols)
         len = E->screencols;
 
-    mvprintw(y, 0, "%.*s", len, row->data + E->coloff);
+    mvprintw(y, 0, "%.*s", len, row->data + E->coloff); // TODO: значение 0 можно 
+    // изменить на положительное значение тоесть сдвинуть в право но проблема в то что курсор имеет доступ в это пространство.
 }
 
 void editor_refresh_screen(Editor *E) {
