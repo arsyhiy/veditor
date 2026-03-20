@@ -1,5 +1,4 @@
 #pragma once
-
 #include <limits.h>
 #include <locale.h>
 #include <ncurses.h>
@@ -10,6 +9,11 @@
 #include "buffer.h"
 
 #include "undo.h"
+
+// FIXME:  временый хак
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
 
 typedef struct {
   size_t row;
@@ -32,8 +36,8 @@ typedef struct {
 
   size_t numrows;
 
-  size_t screenrows;
-  size_t screencols;
+  int screenrows;
+  int screencols;
 
   EditorState editor_state;
 

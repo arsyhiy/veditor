@@ -1,5 +1,5 @@
 all:
-	gcc main.c editor.c buffer.c display.c file.c input.c -lncursesw -o veditor
+	gcc -std=gnu11 main.c editor.c buffer.c display.c file.c input.c -lncursesw -o veditor
 
 debug:
 
